@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Madrasah Tarbiyah Idadiyah al-Miftah</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-50: #EAF3DE;
+    --green-100: #C0DD97;
+    --green-200: #97C459;
+    --green-400: #639922;
+    --green-600: #3B6D11;
+    --green-800: #27500A;
+    --green-900: #173404;
+    --teal-50: #E1F5EE;
+    --teal-100: #9FE1CB;
+    --teal-200: #5DCAA5;
+    --teal-400: #1D9E75;
+    --teal-600: #0F6E56;
+    --teal-800: #085041;
+    --amber-50: #FAEEDA;
+    --amber-100: #FAC775;
+    --amber-200: #EF9F27;
+    --amber-400: #BA7517;
+    --amber-600: #854F0B;
+    --gold: #C9A84C;
+    --gold-light: #E8D08A;
+    --cream: #FAF7F0;
+    --dark: #1A2010;
+    --text-main: #2C3A1E;
+    --text-muted: #5A6B48;
+    --text-light: #8A9B78;
+    --border: rgba(60,90,30,0.12);
+    --bg: #F5F2E8;
+    --white: #FFFFFF;
+    --shadow-sm: 0 1px 3px rgba(30,60,10,0.08);
+    --shadow-md: 0 4px 16px rgba(30,60,10,0.10);
+    --shadow-lg: 0 8px 32px rgba(30,60,10,0.14);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-lg: 20px;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--green-900);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    padding: 0 0 24px;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    text-align: center;
+  }
+
+  .logo-emblem {
+    width: 56px; height: 56px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+    font-size: 22px;
+    font-family: 'Amiri', serif;
+    color: var(--green-900);
+    font-weight: 700;
+  }
+
+  .logo-name {
+    font-family: 'Amiri', serif;
+    font-size: 15px;
+    color: var(--gold-light);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .sidebar-nav {
+    padding: 20px 12px;
+    flex: 1;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    color: rgba(255,255,255,0.65);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+    margin-bottom: 2px;
+    text-decoration: none;
+  }
+
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+  .nav-item.active { background: var(--gold); color: var(--green-900); font-weight: 600; }
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  .nav-icon {
+    width: 18px; height: 18px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .sidebar-bottom {
+    padding: 0 12px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 16px;
+  }
+
+  /* ===== MAIN ===== */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== TOPBAR ===== */
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .topbar-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .year-badge {
+    background: var(--green-50);
+    color: var(--green-600);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--green-100);
+  }
+
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--green-400);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* ===== CONTENT ===== */
+  .content {
+    padding: 32px;
+    flex: 1;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ===== STAT CARDS ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .stat-card.murid::before  { background: var(--green-400); }
+  .stat-card.tulis::before  { background: var(--teal-400); }
+  .stat-card.lulus::before  { background: #639922; }
+  .stat-card.guru::before   { background: #1D9E75; }
+
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+  .stat-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+    font-size: 18px;
+  }
+
+  .stat-card.murid .stat-icon { background: var(--green-50); }
+  .stat-card.tulis .stat-icon { background: var(--teal-50); }
+  .stat-card.lulus .stat-icon { background: #EAF3DE; }
+  .stat-card.guru  .stat-icon { background: #E1F5EE; }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1;
+    margin-bottom: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-value .unit {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 2px;
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 4px;
+  }
+
+  /* ===== CHARTS ===== */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .chart-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+  }
+
+  .chart-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+
+  .chart-card-sub {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+  }
+
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ===== BOTTOM ROW ===== */
+  .bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* ===== DONUT ===== */
+  .donut-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto;
+  }
+
+  .donut-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .donut-pct { font-size: 26px; font-weight: 700; color: var(--green-600); }
+  .donut-pct-label { font-size: 10px; color: var(--text-light); }
+
+  /* ===== TABLE ===== */
+  .table-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .table-head {
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .data-table thead th {
+    background: var(--cream);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .data-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .data-table tbody tr:last-child { border-bottom: none; }
+  .data-table tbody tr:hover { background: var(--cream); }
+
+  .data-table tbody td {
+    padding: 11px 16px;
+    color: var(--text-main);
+    vertical-align: middle;
+  }
+
+  .guru-name { font-weight: 600; color: var(--text-main); }
+  .guru-kelas { font-size: 11px; color: var(--text-light); }
+
+  .progress-bar-wrap {
+    background: var(--green-50);
+    border-radius: 20px;
+    height: 7px;
+    width: 100px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 20px;
+    background: var(--green-400);
+  }
+
+  .badge-lulus {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .badge-lulus.tinggi { background: #EAF3DE; color: var(--green-600); }
+  .badge-lulus.sedang { background: var(--amber-50); color: var(--amber-600); }
+  .badge-lulus.rendah { background: #FCEBEB; color: #A32D2D; }
+
+  /* ===== PAGE ===== */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ===== UPLOAD ZONE ===== */
+  .upload-zone {
+    border: 2px dashed var(--green-200);
+    border-radius: var(--radius-lg);
+    padding: 48px 32px;
+    text-align: center;
+    background: var(--white);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 24px;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--green-400);
+    background: var(--green-50);
+  }
+  .upload-zone input[type=file] { display: none; }
+  .upload-icon { font-size: 48px; margin-bottom: 12px; }
+  .upload-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
+  .upload-sub { font-size: 13px; color: var(--text-muted); }
+  .upload-btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 10px 24px;
+    background: var(--green-600);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    border: none;
+  }
+  .upload-btn:hover { background: var(--green-800); }
+
+  /* ===== TOOLBAR ===== */
+  .arsip-toolbar {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .arsip-toolbar input[type=text] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text-main);
+    background: var(--bg);
+    outline: none;
+    transition: border 0.15s;
+  }
+  .arsip-toolbar input[type=text]:focus { border-color: var(--green-400); }
+
+  .arsip-toolbar select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text-main);
+    background: var(--white);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .filter-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* ===== STATS BAR ===== */
+  .arsip-stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .arsip-stat-chip {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 18px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-sm);
+  }
+  .arsip-stat-chip strong {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+  .arsip-stat-chip.lulus-chip strong { color: var(--green-600); }
+  .arsip-stat-chip.gagal-chip strong { color: #A32D2D; }
+
+  /* ===== ARSIP TABLE ===== */
+  .arsip-table-wrap {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .arsip-table-header {
+    padding: 16px 20px;
+    background: var(--green-900);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .arsip-table-title {
+    font-family: 'Amiri', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 0.02em;
+  }
+
+  .arsip-table-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+  }
+
+  .arsip-count-badge {
+    background: var(--gold);
+    color: var(--green-900);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .arsip-table-scroll {
+    overflow-x: auto;
+    max-height: 560px;
+    overflow-y: auto;
+  }
+
+  table.arsip-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    min-width: 800px;
+  }
+
+  .arsip-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .arsip-table thead th {
+    background: #E8721E;
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .arsip-table thead th:last-child { border-right: none; }
+
+  .arsip-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+  }
+  .arsip-table tbody tr:nth-child(even) { background: #FAFAFA; }
+  .arsip-table tbody tr:hover { background: var(--green-50); }
+  .arsip-table tbody tr:last-child { border-bottom: none; }
+
+  .arsip-table tbody td {
+    padding: 9px 14px;
+    color: var(--text-main);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .arsip-table td.id-pps { font-family: monospace; font-size: 11px; color: var(--text-muted); }
+  .arsip-table td.nama-col { font-weight: 600; white-space: normal; max-width: 200px; }
+
+  .ket-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .ket-badge.lulus { background: #EAF3DE; color: var(--green-600); }
+  .ket-badge.tidak-lulus { background: #FCEBEB; color: #A32D2D; }
+
+  /* ===== PAGINATION ===== */
+  .pagination-wrap {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .pagination-btns { display: flex; gap: 6px; }
+  .pg-btn {
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--white);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-main);
+    transition: all 0.15s;
+  }
+  .pg-btn:hover { background: var(--green-50); border-color: var(--green-200); }
+  .pg-btn.active { background: var(--green-600); color: #fff; border-color: var(--green-600); }
+  .pg-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--teal-400);
+    color: white;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .export-btn:hover { background: var(--teal-600); }
+
+  .file-info-bar {
+    background: var(--green-50);
+    border: 1px solid var(--green-100);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--green-600);
+    font-weight: 500;
+  }
+
+  /* ===== MURID DETAIL PAGE ===== */
+  .murid-search-bar {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .murid-search-bar input {
+    flex: 1;
+    min-width: 260px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-main);
+    background: var(--bg);
+    outline: none;
+    transition: border 0.15s;
+  }
+  .murid-search-bar input:focus { border-color: var(--green-400); }
+
+  .murid-results-list {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    max-height: 280px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+  }
+
+  .murid-result-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.12s;
+  }
+  .murid-result-item:last-child { border-bottom: none; }
+  .murid-result-item:hover { background: var(--green-50); }
+  .murid-result-name { font-weight: 600; font-size: 14px; }
+  .murid-result-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .murid-result-badge {
+    background: var(--green-50);
+    color: var(--green-600);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .murid-detail-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .murid-detail-header {
+    background: var(--green-900);
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .murid-avatar-big {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--green-900);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'Amiri', serif;
+    flex-shrink: 0;
+  }
+
+  .murid-detail-name {
+    font-family: 'Amiri', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold-light);
+  }
+
+  .murid-detail-meta {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 4px;
+  }
+
+  .murid-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .murid-summary-item {
+    padding: 20px 24px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+  .murid-summary-item:last-child { border-right: none; }
+  .murid-summary-label { font-size: 11px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; font-weight: 600; }
+  .murid-summary-value { font-size: 26px; font-weight: 700; color: var(--text-main); }
+  .murid-summary-value.green { color: var(--green-600); }
+  .murid-summary-value.red { color: #A32D2D; }
+  .murid-summary-value.blue { color: var(--teal-600); }
+
+  .murid-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .murid-history-table thead th {
+    background: var(--cream);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .murid-history-table tbody td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .murid-history-table tbody tr:last-child td { border-bottom: none; }
+  .murid-history-table tbody tr:hover { background: var(--cream); }
+
+  .kelas-tag {
+    display: inline-block;
+    background: var(--teal-50);
+    color: var(--teal-600);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .empty-murid {
+    text-align: center;
+    padding: 64px 32px;
+    color: var(--text-muted);
+  }
+  .empty-murid .empty-icon { font-size: 56px; margin-bottom: 16px; }
+  .empty-murid h3 { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+  .empty-murid p { font-size: 13px; max-width: 360px; margin: 0 auto; }
+
+  /* ===== ARABIC ===== */
+  .arabic-ornament {
+    font-family: 'Amiri', serif;
+    color: var(--gold);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+  }
+
+  /* ===== FOOTER ===== */
+  .page-footer {
+    padding: 16px 32px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-light);
+    border-top: 1px solid var(--border);
+    background: var(--white);
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ===== NO DATA BANNER ===== */
+  .no-data-banner {
+    background: var(--amber-50);
+    border: 1px solid var(--amber-100);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--amber-600);
+    font-weight: 500;
+  }
+
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 6px;
+    box-shadow: var(--shadow-sm);
+    width: fit-content;
+  }
+
+  .tab-btn {
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .tab-btn.active {
+    background: var(--green-600);
+    color: white;
+    font-weight: 600;
+  }
+  .tab-btn:hover:not(.active) { background: var(--green-50); color: var(--green-600); }
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-emblem">م</div>
+    <div class="logo-name">Tarbiyah Idadiyah<br>al-Miftah</div>
+    <div class="logo-sub">Sistem Informasi Akademik</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Menu Utama</div>
+    <a class="nav-item active" href="#" onclick="showPage('dashboard', this); return false;">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="#" onclick="showPage('arsip', this); return false;">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Arsip Tes Tulis
+    </a>
+    <a class="nav-item" href="#" onclick="showPage('murid', this); return false;">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Data Murid
+    </a>
+    <a class="nav-item" href="#" onclick="showPage('guru', this); return false;">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Rekap Guru
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div style="padding: 0 12px; font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 8px;">
+      Data dari: <span id="sidebarFileName" style="color:rgba(255,255,255,0.5);">Belum ada file</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbarTitle">Dashboard Akademik</div>
+    </div>
+    <div class="topbar-right">
+      <span class="arabic-ornament">بِسْمِ اللهِ</span>
+      <span class="year-badge" id="topbarDataInfo">Belum ada data</span>
+      <div class="avatar">م</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ====== PAGE: DASHBOARD ====== -->
+    <div id="page-dashboard" class="page active">
+
+      <div id="noBanner" class="no-data-banner">
+        ⚠️ <span>Dashboard akan terisi otomatis setelah Anda upload file Excel di halaman <strong>Arsip Tes Tulis</strong>.</span>
+        <button onclick="showPage('arsip', document.querySelectorAll('.nav-item')[1])" style="margin-left:auto;padding:6px 16px;background:var(--amber-400);color:white;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:12px;">Upload Sekarang →</button>
+      </div>
+
+      <div class="section-header">
+        <span class="section-title">Ringkasan Statistik Tes Tulis</span>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card murid">
+          <div class="stat-icon">👨‍🎓</div>
+          <div class="stat-label">Total Murid Unik</div>
+          <div class="stat-value" id="val-murid">—<span class="unit">murid</span></div>
+          <div class="stat-sub" id="sub-murid">Upload Excel untuk melihat data</div>
+        </div>
+        <div class="stat-card tulis">
+          <div class="stat-icon">📝</div>
+          <div class="stat-label">Total Tes Tulis</div>
+          <div class="stat-value" id="val-tulis">—<span class="unit">tes</span></div>
+          <div class="stat-sub" id="sub-tulis">Jumlah total entri tes</div>
+        </div>
+        <div class="stat-card lulus">
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">Presentasi Lulus</div>
+          <div class="stat-value" id="val-lulus">—<span class="unit">%</span></div>
+          <div class="stat-sub" id="sub-lulus">Dari total tes tulis</div>
+        </div>
+        <div class="stat-card guru">
+          <div class="stat-icon">🏅</div>
+          <div class="stat-label">Rata-rata Guru Meluluskan</div>
+          <div class="stat-value" id="val-guru">—<span class="unit">%</span></div>
+          <div class="stat-sub" id="sub-guru">Rata-rata dari semua pembimbing</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-card-title">Tren per Bulan Hijriah</div>
+          <div class="chart-card-sub">Jumlah lulus &amp; tidak lulus tiap bulan</div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#639922"></div> Lulus</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#E24B4A"></div> Tidak Lulus</div>
+          </div>
+          <div style="position:relative;height:240px;">
+            <canvas id="bulanChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-title">Hasil Tes per Kelompok Kelas</div>
+          <div class="chart-card-sub">Dikelompokkan global (Shifir, Jilid 1–4, Tathbiq, dll)</div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#639922"></div> Lulus</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#E24B4A"></div> Tidak Lulus</div>
+          </div>
+          <div style="position:relative;height:240px;">
+            <canvas id="kelasChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Donut row -->
+      <div class="charts-row" style="margin-bottom:20px;">
+        <div class="chart-card" style="display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
+          <div>
+            <div class="chart-card-title">Distribusi Kelulusan</div>
+            <div class="chart-card-sub">Berdasarkan hasil tes tulis</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;">
+              <div style="background:var(--green-50);border-radius:var(--radius-sm);padding:12px;text-align:center;">
+                <div style="font-size:20px;font-weight:700;color:var(--green-600)" id="jumlah-lulus">—</div>
+                <div style="font-size:11px;color:var(--text-light);">Lulus</div>
+              </div>
+              <div style="background:#FCEBEB;border-radius:var(--radius-sm);padding:12px;text-align:center;">
+                <div style="font-size:20px;font-weight:700;color:#A32D2D" id="jumlah-tidak-lulus">—</div>
+                <div style="font-size:11px;color:var(--text-light);">Tidak Lulus</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="donut-wrap">
+              <canvas id="donutChart"></canvas>
+              <div class="donut-center">
+                <div class="donut-pct" id="donut-pct">—</div>
+                <div class="donut-pct-label">Lulus</div>
+              </div>
+            </div>
+            <div class="chart-legend" style="justify-content:center;gap:20px;margin-top:12px;">
+              <div class="legend-item"><div class="legend-dot" style="background:#639922;border-radius:50%;width:12px;height:12px;"></div> Lulus</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#E24B4A;border-radius:50%;width:12px;height:12px;"></div> Tidak Lulus</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blank placeholder for grid alignment -->
+        <div></div>
+      </div>
+
+      <!-- Bottom Row -->
+      <div class="bottom-row">
+        <div class="chart-card">
+          <div class="chart-card-title">% Guru Meluluskan</div>
+          <div class="chart-card-sub">Performa per pembimbing (dari data nyata)</div>
+          <div style="position:relative;height:260px;margin-top:12px;">
+            <canvas id="guruChart"></canvas>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-head">
+            <div>
+              <div class="chart-card-title">Rekap Kelulusan per Guru</div>
+              <div class="chart-card-sub" style="margin:0;">Detail pencapaian masing-masing pembimbing</div>
+            </div>
+            <input type="text" placeholder="Cari guru..." style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;width:150px;" oninput="filterGuruTable(this.value)">
+          </div>
+          <div style="overflow-x:auto;max-height:300px;overflow-y:auto;">
+            <table class="data-table" id="guruTable">
+              <thead>
+                <tr>
+                  <th>Pembimbing</th>
+                  <th>Total Tes</th>
+                  <th>Lulus</th>
+                  <th>Tdk Lulus</th>
+                  <th>% Lulus</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="guruTbody">
+                <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted);">Upload file Excel untuk melihat data</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-dashboard -->
+
+    <!-- ====== PAGE: ARSIP TES TULIS ====== -->
+    <div id="page-arsip" class="page">
+
+      <div class="section-header" style="margin-bottom:20px;">
+        <span class="section-title">📋 Arsip Tes Tulis Idadiyah</span>
+      </div>
+
+      <!-- Upload Zone -->
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+        <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFile(this.files[0])">
+        <div class="upload-icon">📊</div>
+        <div class="upload-title">Upload File Excel Arsip Tes Tulis</div>
+        <div class="upload-sub">Pilih atau seret file .xlsx / .xls · Kolom: ID PPS, NAMA, DOM, KELAS, PEMBIMBING, TEMPAT, KET. TES, L/TL, TGL</div>
+        <button class="upload-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">Pilih File Excel</button>
+      </div>
+
+      <!-- File Info Bar -->
+      <div class="file-info-bar" id="fileInfoBar" style="display:none;">
+        📁 <span id="fileInfoText"></span>
+        <button onclick="clearData()" style="margin-left:auto;padding:4px 12px;border:1px solid var(--green-200);border-radius:6px;background:white;color:var(--green-600);font-size:11px;font-weight:600;cursor:pointer;">Ganti File</button>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="arsip-stats-bar" id="arsipStatsBar" style="display:none;">
+        <div class="arsip-stat-chip"><span>Total Entri</span><strong id="statTotal">0</strong></div>
+        <div class="arsip-stat-chip"><span>👤 Murid Unik</span><strong id="statMuridUnik">0</strong></div>
+        <div class="arsip-stat-chip lulus-chip"><span>✅ Lulus</span><strong id="statLulus">0</strong></div>
+        <div class="arsip-stat-chip gagal-chip"><span>❌ Tidak Lulus</span><strong id="statGagal">0</strong></div>
+        <div class="arsip-stat-chip"><span>📚 Jumlah Kelas</span><strong id="statKelas">0</strong></div>
+        <div class="arsip-stat-chip"><span>👨‍🏫 Pembimbing</span><strong id="statPembimbing">0</strong></div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="arsip-toolbar" id="arsipToolbar" style="display:none;">
+        <span class="filter-label">🔍 Cari:</span>
+        <input type="text" id="arsipSearch" placeholder="Cari nama, ID PPS, pembimbing..." oninput="applyFilters()">
+        <span class="filter-label">Kelas:</span>
+        <select id="filterKelas" onchange="applyFilters()"><option value="">Semua Kelas</option></select>
+        <span class="filter-label">L/TL:</span>
+        <select id="filterLTL" onchange="applyFilters()">
+          <option value="">Semua</option>
+          <option value="LULUS">LULUS</option>
+          <option value="TIDAK LULUS">TIDAK LULUS</option>
+        </select>
+        <button class="export-btn" onclick="exportFiltered()">⬇ Export Excel</button>
+      </div>
+
+      <!-- Table -->
+      <div class="arsip-table-wrap" id="arsipTableWrap" style="display:none;">
+        <div class="arsip-table-header">
+          <div>
+            <div class="arsip-table-title">ARSIP TES TULIS IDADIYAH</div>
+            <div class="arsip-table-sub" id="arsipTableSub">Data dari File Excel</div>
+          </div>
+          <span class="arsip-count-badge" id="arsipCountBadge">0 Data</span>
+        </div>
+        <div class="arsip-table-scroll">
+          <table class="arsip-table" id="arsipTable">
+            <thead>
+              <tr>
+                <th style="width:36px;">#</th>
+                <th>ID PPS</th>
+                <th>Nama</th>
+                <th>DOM</th>
+                <th>Kelas</th>
+                <th>Pembimbing</th>
+                <th>Tempat</th>
+                <th>Ket. Tes</th>
+                <th>L/TL</th>
+                <th>Tgl</th>
+              </tr>
+            </thead>
+            <tbody id="arsipTbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap">
+          <span id="paginationInfo">—</span>
+          <div class="pagination-btns" id="paginationBtns"></div>
+        </div>
+      </div>
+
+    </div><!-- /page-arsip -->
+
+    <!-- ====== PAGE: DATA MURID ====== -->
+    <div id="page-murid" class="page">
+
+      <div class="section-header" style="margin-bottom:20px;">
+        <span class="section-title">👤 Data Murid – Riwayat Tes</span>
+      </div>
+
+      <div id="muridNoData" class="no-data-banner" style="display:none;">
+        ⚠️ Belum ada data. Silakan upload file Excel di halaman <strong>Arsip Tes Tulis</strong> terlebih dahulu.
+      </div>
+
+      <div class="murid-search-bar" id="muridSearchBar">
+        <span style="font-size:13px;font-weight:600;color:var(--text-muted);white-space:nowrap;">🔍 Cari Murid:</span>
+        <input type="text" id="muridSearchInput" placeholder="Ketik nama atau ID PPS murid..." oninput="searchMurid(this.value)">
+        <span id="muridSearchCount" style="font-size:12px;color:var(--text-muted);white-space:nowrap;"></span>
+      </div>
+
+      <!-- Search results -->
+      <div id="muridResultsList" class="murid-results-list" style="display:none;"></div>
+
+      <!-- Murid Detail -->
+      <div id="muridDetailSection" style="display:none;">
+
+        <div class="murid-detail-card">
+          <div class="murid-detail-header">
+            <div class="murid-avatar-big" id="muridAvatarBig">م</div>
+            <div>
+              <div class="murid-detail-name" id="muridDetailName">—</div>
+              <div class="murid-detail-meta" id="muridDetailMeta">—</div>
+            </div>
+            <button onclick="closeMuridDetail()" style="margin-left:auto;padding:6px 14px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:6px;color:white;font-size:12px;cursor:pointer;">✕ Tutup</button>
+          </div>
+
+          <div class="murid-summary-grid">
+            <div class="murid-summary-item">
+              <div class="murid-summary-label">Total Tes</div>
+              <div class="murid-summary-value blue" id="muridTotalTes">—</div>
+            </div>
+            <div class="murid-summary-item">
+              <div class="murid-summary-label">Lulus (L)</div>
+              <div class="murid-summary-value green" id="muridTotalL">—</div>
+            </div>
+            <div class="murid-summary-item">
+              <div class="murid-summary-label">Tidak Lulus (TL)</div>
+              <div class="murid-summary-value red" id="muridTotalTL">—</div>
+            </div>
+            <div class="murid-summary-item">
+              <div class="murid-summary-label">Kelas Diikuti</div>
+              <div class="murid-summary-value" id="muridKelasCount">—</div>
+            </div>
+          </div>
+
+          <div style="padding: 16px 20px; background: var(--cream); border-top: 1px solid var(--border);">
+            <strong style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Kelas yang Pernah Diikuti:</strong>
+            <div id="muridKelasTags" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;"></div>
+          </div>
+        </div>
+
+        <!-- Riwayat Tes -->
+        <div class="arsip-table-wrap">
+          <div class="arsip-table-header">
+            <div>
+              <div class="arsip-table-title">Riwayat Tes Tulis</div>
+              <div class="arsip-table-sub">Semua catatan tes murid ini</div>
+            </div>
+            <span class="arsip-count-badge" id="muridRiwayatCount">0 Data</span>
+          </div>
+          <div class="arsip-table-scroll">
+            <table class="arsip-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Kelas</th>
+                  <th>Pembimbing</th>
+                  <th>Tempat</th>
+                  <th>Ket. Tes</th>
+                  <th>L/TL</th>
+                  <th>Tanggal</th>
+                </tr>
+              </thead>
+              <tbody id="muridRiwayatTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Empty state when no search -->
+      <div id="muridEmptyState" class="empty-murid">
+        <div class="empty-icon">🔍</div>
+        <h3>Cari Data Murid</h3>
+        <p>Ketik nama atau ID PPS murid untuk melihat riwayat tes, jumlah lulus/tidak lulus, dan kelas yang pernah diikuti.</p>
+      </div>
+
+    </div><!-- /page-murid -->
+
+    <!-- ====== PAGE: REKAP GURU ====== -->
+    <div id="page-guru" class="page">
+
+      <div class="section-header" style="margin-bottom:20px;">
+        <span class="section-title">🏅 Rekap Presentasi Guru Meluluskan</span>
+      </div>
+
+      <div id="guruNoData" class="no-data-banner" style="display:none;">
+        ⚠️ Belum ada data. Silakan upload file Excel di halaman <strong>Arsip Tes Tulis</strong> terlebih dahulu.
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <input type="text" id="guruPageSearch" placeholder="🔍 Cari nama pembimbing..." oninput="filterGuruPageTable(this.value)"
+          style="padding:10px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;width:300px;font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);outline:none;">
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-card" style="margin-bottom:20px;">
+        <div class="chart-card-title">Grafik % Guru Meluluskan (dari Data Nyata)</div>
+        <div class="chart-card-sub">Dihitung dari arsip tes tulis yang diupload</div>
+        <div style="position:relative;height:300px;margin-top:12px;">
+          <canvas id="guruPageChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Table Full -->
+      <div class="arsip-table-wrap">
+        <div class="arsip-table-header">
+          <div>
+            <div class="arsip-table-title">DETAIL REKAP PEMBIMBING</div>
+            <div class="arsip-table-sub">Data dari arsip tes tulis</div>
+          </div>
+          <span class="arsip-count-badge" id="guruPageCount">0 Guru</span>
+        </div>
+        <div class="arsip-table-scroll" style="max-height:none;">
+          <table class="arsip-table" id="guruPageTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Pembimbing</th>
+                <th>Kelas Diampu</th>
+                <th>Total Tes</th>
+                <th>Lulus</th>
+                <th>Tidak Lulus</th>
+                <th>% Lulus</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="guruPageTbody">
+              <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted);">Upload file Excel untuk melihat data</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /page-guru -->
+
+  </div><!-- /content -->
+
+  <div class="page-footer">
+    Madrasah Tarbiyah Idadiyah al-Miftah · Sistem Informasi Akademik · <span class="arabic-ornament">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</span>
+  </div>
+
+</main>
+
+<script>
+// =============================================
+// GLOBAL STATE
+// =============================================
+let arsipAllData = [];
+let arsipFiltered = [];
+let currentPage = 1;
+const PAGE_SIZE = 50;
+let kelasChart, donutChart, guruChart, guruPageChart;
+
+// =============================================
+// PAGE NAVIGATION
+// =============================================
+function showPage(pageId, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  const titles = {
+    dashboard: 'Dashboard Akademik',
+    arsip: 'Arsip Tes Tulis',
+    murid: 'Data Murid',
+    guru: 'Rekap Guru'
+  };
+  document.getElementById('topbarTitle').textContent = titles[pageId] || 'Dashboard';
+
+  if (pageId === 'murid' && arsipAllData.length === 0) {
+    document.getElementById('muridNoData').style.display = 'flex';
+    document.getElementById('muridSearchBar').style.display = 'none';
+    document.getElementById('muridEmptyState').style.display = 'none';
+  } else if (pageId === 'murid') {
+    document.getElementById('muridNoData').style.display = 'none';
+    document.getElementById('muridSearchBar').style.display = 'flex';
+    document.getElementById('muridEmptyState').style.display = 'block';
+  }
+
+  if (pageId === 'guru') {
+    if (arsipAllData.length === 0) {
+      document.getElementById('guruNoData').style.display = 'flex';
+    } else {
+      document.getElementById('guruNoData').style.display = 'none';
+      renderGuruPage();
+    }
+  }
+}
+
+// =============================================
+// FILE UPLOAD & PARSE
+// =============================================
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.add('drag-over');
+}
+function handleDragLeave(e) {
+  document.getElementById('uploadZone').classList.remove('drag-over');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+}
+
+function handleFile(file) {
+  if (!file) return;
+  if (!file.name.match(/\.(xlsx|xls)$/i)) {
+    alert('❌ File harus berformat .xlsx atau .xls');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array', cellDates: true });
+
+      let sheetName = wb.SheetNames.find(n => n.trim().toUpperCase() === 'ARSIP TES TULIS');
+      if (!sheetName) sheetName = wb.SheetNames.find(n => n.toUpperCase().includes('ARSIP'));
+      if (!sheetName) sheetName = wb.SheetNames.find(n => n.toUpperCase().includes('TES TULIS'));
+      if (!sheetName) sheetName = wb.SheetNames[0];
+
+      const ws = wb.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+      // Find header row
+      let headerIdx = -1;
+      for (let i = 0; i < Math.min(json.length, 10); i++) {
+        const row = json[i].map(c => String(c).trim().toUpperCase());
+        if (row.some(c => c.includes('ID') && c.includes('PPS'))) { headerIdx = i; break; }
+      }
+      if (headerIdx === -1) {
+        for (let i = 0; i < Math.min(json.length, 10); i++) {
+          const row = json[i].map(c => String(c).trim().toUpperCase());
+          if (row.includes('NAMA') && row.includes('KELAS')) { headerIdx = i; break; }
+        }
+      }
+      if (headerIdx === -1) headerIdx = 2;
+
+      const headers = json[headerIdx].map(c => String(c).trim().toUpperCase());
+
+      const colIdx = {
+        idpps:      headers.findIndex(h => h.includes('ID') && h.includes('PPS')),
+        nama:       headers.findIndex(h => h === 'NAMA'),
+        dom:        headers.findIndex(h => h === 'DOM'),
+        kelas:      headers.findIndex(h => h === 'KELAS'),
+        pembimbing: headers.findIndex(h => h.includes('PEMBIMBING') || h.includes('PENGAJAR') || h.includes('GURU')),
+        tempat:     headers.findIndex(h => h === 'TEMPAT'),
+        ket:        headers.findIndex(h => (h.includes('KET') && h.includes('TES')) || h === 'KET. TES' || h === 'KET TES'),
+        ltl:        headers.findIndex(h => h === 'L/TL' || h === 'LTL'),
+        tgl:        headers.findIndex(h => h === 'TGL' || h.includes('TANGGAL')),
+      };
+
+      const rows = [];
+      for (let i = headerIdx + 1; i < json.length; i++) {
+        const row = json[i];
+        if (!row || row.every(c => c === '' || c === null || c === undefined)) continue;
+        const idpps = colIdx.idpps >= 0 ? String(row[colIdx.idpps] || '').trim() : '';
+        const nama  = colIdx.nama >= 0  ? String(row[colIdx.nama]  || '').trim() : '';
+        if (!idpps && !nama) continue;
+
+        let tgl = '';
+        if (colIdx.tgl >= 0 && row[colIdx.tgl]) {
+          const rawTgl = row[colIdx.tgl];
+          if (rawTgl instanceof Date) {
+            tgl = rawTgl.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          } else {
+            tgl = String(rawTgl).trim();
+          }
+        }
+
+        const ltlRaw = colIdx.ltl >= 0 ? String(row[colIdx.ltl] || '').trim().toUpperCase() : '';
+        const ketRaw = colIdx.ket >= 0 ? String(row[colIdx.ket] || '').trim().toUpperCase() : '';
+
+        // Normalize L/TL
+        let ltl = '';
+        if (ltlRaw === 'LULUS' || ltlRaw === 'L') ltl = 'LULUS';
+        else if (ltlRaw === 'TIDAK LULUS' || ltlRaw === 'TL' || ltlRaw === 'TIDAK') ltl = 'TIDAK LULUS';
+        else if (ketRaw.includes('LULUS') && !ketRaw.includes('TIDAK')) ltl = 'LULUS';
+        else if (ketRaw.includes('TIDAK')) ltl = 'TIDAK LULUS';
+        else ltl = ltlRaw;
+
+        rows.push({
+          idpps, nama,
+          dom:        colIdx.dom >= 0        ? String(row[colIdx.dom] || '').trim()        : '',
+          kelas:      colIdx.kelas >= 0      ? String(row[colIdx.kelas] || '').trim()      : '',
+          pembimbing: colIdx.pembimbing >= 0 ? String(row[colIdx.pembimbing] || '').trim() : '',
+          tempat:     colIdx.tempat >= 0     ? String(row[colIdx.tempat] || '').trim()     : '',
+          ket:        ketRaw,
+          ltl,
+          tgl,
+        });
+      }
+
+      arsipAllData = rows;
+      arsipFiltered = [...rows];
+
+      // Update UI
+      document.getElementById('uploadZone').style.display = 'none';
+      document.getElementById('fileInfoBar').style.display = 'flex';
+      document.getElementById('fileInfoText').textContent =
+        `${file.name} · Sheet: "${sheetName}" · ${rows.length} baris data ditemukan`;
+      document.getElementById('sidebarFileName').textContent = file.name;
+      document.getElementById('topbarDataInfo').textContent = `${rows.length} data tes tulis`;
+
+      document.getElementById('arsipStatsBar').style.display = 'flex';
+      document.getElementById('arsipToolbar').style.display = 'flex';
+      document.getElementById('arsipTableWrap').style.display = 'block';
+      document.getElementById('noBanner').style.display = 'none';
+
+      // Populate kelas filter
+      const kelasSet = [...new Set(rows.map(r => r.kelas).filter(Boolean))].sort();
+      const selKelas = document.getElementById('filterKelas');
+      selKelas.innerHTML = '<option value="">Semua Kelas</option>';
+      kelasSet.forEach(k => {
+        const opt = document.createElement('option');
+        opt.value = k; opt.textContent = k;
+        selKelas.appendChild(opt);
+      });
+
+      currentPage = 1;
+      updateStats(rows);
+      renderTable();
+      updateDashboard(rows);
+
+    } catch(err) {
+      alert('❌ Gagal membaca file Excel.\n\nPastikan file tidak rusak dan berformat .xlsx/.xls\n\nError: ' + err.message);
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// =============================================
+// STATS
+// =============================================
+function isLulus(r) {
+  return r.ltl === 'LULUS' || (r.ket && r.ket.includes('LULUS') && !r.ket.includes('TIDAK'));
+}
+
+function updateStats(rows) {
+  const lulus  = rows.filter(r => isLulus(r)).length;
+  const gagal  = rows.length - lulus;
+  const kelas  = new Set(rows.map(r => r.kelas).filter(Boolean)).size;
+  const pemb   = new Set(rows.map(r => r.pembimbing).filter(Boolean)).size;
+  const muridUnik = new Set(rows.map(r => r.idpps || r.nama).filter(Boolean)).size;
+  document.getElementById('statTotal').textContent      = rows.length;
+  document.getElementById('statMuridUnik').textContent  = muridUnik;
+  document.getElementById('statLulus').textContent      = lulus;
+  document.getElementById('statGagal').textContent      = gagal;
+  document.getElementById('statKelas').textContent      = kelas;
+  document.getElementById('statPembimbing').textContent = pemb;
+}
+
+// =============================================
+// DASHBOARD UPDATE FROM DATA
+// =============================================
+function updateDashboard(rows) {
+  const lulus = rows.filter(r => isLulus(r)).length;
+  const gagal = rows.length - lulus;
+  const pct   = rows.length > 0 ? Math.round(lulus / rows.length * 100) : 0;
+  const muridUnik = new Set(rows.map(r => r.idpps || r.nama).filter(Boolean)).size;
+
+  document.getElementById('val-murid').innerHTML = muridUnik + '<span class="unit">murid</span>';
+  document.getElementById('sub-murid').textContent = new Set(rows.map(r=>r.kelas).filter(Boolean)).size + ' kelas berbeda';
+  document.getElementById('val-tulis').innerHTML = rows.length + '<span class="unit">tes</span>';
+  document.getElementById('sub-tulis').textContent = 'Total entri di arsip';
+  document.getElementById('val-lulus').innerHTML = pct + '<span class="unit">%</span>';
+  document.getElementById('sub-lulus').textContent = lulus + ' lulus dari ' + rows.length + ' tes';
+
+  // Guru stats
+  const guruMap = buildGuruMap(rows);
+  const guruArr = Object.values(guruMap).filter(g => g.total > 0);
+  const avgGuru = guruArr.length > 0 ? Math.round(guruArr.reduce((a, g) => a + g.pct, 0) / guruArr.length) : 0;
+  document.getElementById('val-guru').innerHTML = avgGuru + '<span class="unit">%</span>';
+  document.getElementById('sub-guru').textContent = 'Rata-rata dari ' + guruArr.length + ' pembimbing';
+
+  // Donut
+  document.getElementById('donut-pct').textContent = pct + '%';
+  document.getElementById('jumlah-lulus').textContent = lulus;
+  document.getElementById('jumlah-tidak-lulus').textContent = gagal;
+  buildDonut(lulus, gagal);
+
+  // Kelas chart (grouped)
+  buildKelasChart(rows);
+
+  // Bulan hijriah chart
+  buildBulanChart(rows);
+
+  // Guru chart & table
+  buildGuruChartDashboard(guruArr);
+  buildGuruTable(guruArr);
+}
+
+function buildGuruMap(rows) {
+  const guruMap = {};
+  rows.forEach(r => {
+    const nama = r.pembimbing || '(Tidak diketahui)';
+    if (!guruMap[nama]) guruMap[nama] = { nama, total: 0, lulus: 0, tidakLulus: 0, kelas: new Set() };
+    guruMap[nama].total++;
+    if (isLulus(r)) guruMap[nama].lulus++;
+    else guruMap[nama].tidakLulus++;
+    if (r.kelas) guruMap[nama].kelas.add(r.kelas);
+  });
+  Object.values(guruMap).forEach(g => {
+    g.pct = g.total > 0 ? Math.round(g.lulus / g.total * 100) : 0;
+  });
+  return guruMap;
+}
+
+function buildDonut(lulus, gagal) {
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Lulus', 'Tidak Lulus'],
+      datasets: [{ data: [lulus, gagal], backgroundColor: ['#639922', '#E24B4A'], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      cutout: '72%',
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// Map kelas string → kelompok global
+function getKelasGroup(kelas) {
+  const k = kelas.trim().toUpperCase();
+  if (k.includes('SHIFIR') || k.startsWith('SHIFIR') || k === 'SHIFIR') return 'Shifir';
+  // Jilid: match angka setelah JILID
+  const jilidMatch = k.match(/JILID\s*(\d+)/);
+  if (jilidMatch) return 'Jilid ' + jilidMatch[1];
+  // Tathbiq variants
+  if (k.includes('TATHBIQ') || k.includes('TATBIQ') || k.includes('TATHBI')) {
+    const tNum = k.match(/(\d+)/);
+    return tNum ? 'Tathbiq ' + tNum[1] : 'Tathbiq';
+  }
+  if (k.includes('TAHTBIQ') || k.includes('TAHTBI')) {
+    const tNum = k.match(/(\d+)/);
+    return tNum ? 'Tahtbiq ' + tNum[1] : 'Tahtbiq';
+  }
+  // Ghorib
+  if (k.includes('GHORIB') || k.includes('GHARIB')) return 'Ghorib';
+  // Tajwid
+  if (k.includes('TAJWID')) return 'Tajwid';
+  // Quran / Al-Quran
+  if (k.includes('QURAN') || k.includes('QUR')) return 'Al-Quran';
+  return 'Lainnya';
+}
+
+// Urutan tampil
+const KELAS_ORDER = ['Shifir','Jilid 1','Jilid 2','Jilid 3','Jilid 4','Jilid 5','Jilid 6','Tathbiq','Tathbiq 1','Tathbiq 2','Tathbiq 3','Tahtbiq','Tahtbiq 1','Tahtbiq 2','Ghorib','Tajwid','Al-Quran','Lainnya'];
+
+function buildKelasChart(rows) {
+  const groupMap = {};
+  rows.forEach(r => {
+    const g = getKelasGroup(r.kelas || '');
+    if (!groupMap[g]) groupMap[g] = { lulus: 0, tidakLulus: 0 };
+    if (isLulus(r)) groupMap[g].lulus++;
+    else groupMap[g].tidakLulus++;
+  });
+
+  // Sort by KELAS_ORDER
+  const groups = Object.keys(groupMap).sort((a, b) => {
+    const ia = KELAS_ORDER.indexOf(a), ib = KELAS_ORDER.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+
+  const lulusData = groups.map(g => groupMap[g].lulus);
+  const tlData    = groups.map(g => groupMap[g].tidakLulus);
+
+  const ctx = document.getElementById('kelasChart').getContext('2d');
+  if (kelasChart) kelasChart.destroy();
+  kelasChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: groups,
+      datasets: [
+        { label: 'Lulus',       data: lulusData, backgroundColor: 'rgba(99,153,34,0.82)',  borderRadius: 4 },
+        { label: 'Tidak Lulus', data: tlData,    backgroundColor: 'rgba(226,75,74,0.78)',  borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#8A9B78' } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 11 }, color: '#8A9B78' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// Nama bulan Hijriah
+const HIJRI_MONTHS = ['Muharram','Safar','Rabi\'ul Awwal','Rabi\'ul Akhir','Jumadal Ula','Jumadal Akhirah','Rajab','Sya\'ban','Ramadhan','Syawal','Dzulqa\'dah','Dzulhijjah'];
+
+function parseTglHijri(tgl) {
+  // Format: DD/MM/YYYY atau D/M/YYYY
+  if (!tgl) return null;
+  const parts = String(tgl).split('/');
+  if (parts.length !== 3) return null;
+  const d = parseInt(parts[0]), m = parseInt(parts[1]), y = parseInt(parts[2]);
+  if (isNaN(d) || isNaN(m) || isNaN(y) || m < 1 || m > 12) return null;
+  return { d, m, y, key: `${y}-${String(m).padStart(2,'0')}`, label: HIJRI_MONTHS[m-1] + ' ' + y };
+}
+
+let bulanChart;
+function buildBulanChart(rows) {
+  const bulanMap = {};
+  rows.forEach(r => {
+    const parsed = parseTglHijri(r.tgl);
+    if (!parsed) return;
+    if (!bulanMap[parsed.key]) bulanMap[parsed.key] = { label: parsed.label, lulus: 0, tidakLulus: 0 };
+    if (isLulus(r)) bulanMap[parsed.key].lulus++;
+    else bulanMap[parsed.key].tidakLulus++;
+  });
+
+  const sorted = Object.entries(bulanMap).sort((a, b) => a[0].localeCompare(b[0]));
+  const labels    = sorted.map(e => e[1].label);
+  const lulusData = sorted.map(e => e[1].lulus);
+  const tlData    = sorted.map(e => e[1].tidakLulus);
+
+  const ctx = document.getElementById('bulanChart').getContext('2d');
+  if (bulanChart) bulanChart.destroy();
+  bulanChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Lulus',       data: lulusData, backgroundColor: 'rgba(99,153,34,0.82)',  borderRadius: 4 },
+        { label: 'Tidak Lulus', data: tlData,    backgroundColor: 'rgba(226,75,74,0.78)',  borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { title: (items) => items[0].label } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#8A9B78', maxRotation: 35 } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 11 }, color: '#8A9B78' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+function buildGuruChartDashboard(guruArr) {
+  const sorted = [...guruArr].sort((a, b) => b.pct - a.pct).slice(0, 10);
+  const labels = sorted.map(g => g.nama.length > 20 ? g.nama.substring(0, 18) + '…' : g.nama);
+  const values = sorted.map(g => g.pct);
+  const colors = values.map(v => v >= 80 ? '#639922' : v >= 60 ? '#1D9E75' : '#BA7517');
+
+  const ctx = document.getElementById('guruChart').getContext('2d');
+  if (guruChart) guruChart.destroy();
+  guruChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: '% Lulus', data: values, backgroundColor: colors, borderRadius: 4, barThickness: 16 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 }, color: '#8A9B78', callback: v => v + '%' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#5A6B48' } }
+      }
+    }
+  });
+}
+
+function buildGuruTable(guruArr) {
+  const sorted = [...guruArr].sort((a, b) => b.pct - a.pct);
+  const tbody = document.getElementById('guruTbody');
+  if (sorted.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">Tidak ada data pembimbing</td></tr>';
+    return;
+  }
+  tbody.innerHTML = sorted.map(g => {
+    const cls = g.pct >= 80 ? 'tinggi' : g.pct >= 60 ? 'sedang' : 'rendah';
+    const label = g.pct >= 80 ? 'Baik' : g.pct >= 60 ? 'Cukup' : 'Perlu Perhatian';
+    return `<tr>
+      <td><div class="guru-name">${g.nama}</div></td>
+      <td>${g.total}</td>
+      <td style="color:var(--green-600);font-weight:600;">${g.lulus}</td>
+      <td style="color:#A32D2D;font-weight:600;">${g.tidakLulus}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-bar-wrap"><div class="progress-bar" style="width:${g.pct}%;background:${g.pct>=80?'var(--green-400)':g.pct>=60?'var(--teal-400)':'#BA7517'}"></div></div>
+          <span style="font-weight:700;font-size:12px;">${g.pct}%</span>
+        </div>
+      </td>
+      <td><span class="badge-lulus ${cls}">${label}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterGuruTable(q) {
+  const rows = document.querySelectorAll('#guruTbody tr');
+  rows.forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// =============================================
+// ARSIP TABLE
+// =============================================
+function applyFilters() {
+  const q   = document.getElementById('arsipSearch').value.trim().toLowerCase();
+  const kelas = document.getElementById('filterKelas').value;
+  const ltl   = document.getElementById('filterLTL').value.toUpperCase();
+
+  arsipFiltered = arsipAllData.filter(r => {
+    if (q && !(r.nama.toLowerCase().includes(q) ||
+               r.idpps.toLowerCase().includes(q) ||
+               r.pembimbing.toLowerCase().includes(q) ||
+               r.kelas.toLowerCase().includes(q) ||
+               r.dom.toLowerCase().includes(q))) return false;
+    if (kelas && r.kelas !== kelas) return false;
+    if (ltl) {
+      if (ltl === 'LULUS' && r.ltl !== 'LULUS') return false;
+      if (ltl === 'TIDAK LULUS' && r.ltl !== 'TIDAK LULUS') return false;
+    }
+    return true;
+  });
+
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable() {
+  const total = arsipFiltered.length;
+  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const end   = Math.min(start + PAGE_SIZE, total);
+  const pageData = arsipFiltered.slice(start, end);
+
+  document.getElementById('arsipCountBadge').textContent = total + ' Data';
+  document.getElementById('paginationInfo').textContent =
+    total === 0 ? 'Tidak ada data' : `Menampilkan ${start + 1}–${end} dari ${total} data`;
+
+  const tbody = document.getElementById('arsipTbody');
+  if (pageData.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:48px;color:var(--text-muted);">
+      <div style="font-size:40px;margin-bottom:12px;">🔍</div>
+      <div style="font-weight:600;">Tidak ada data ditemukan</div>
+    </td></tr>`;
+  } else {
+    tbody.innerHTML = pageData.map((r, i) => {
+      const lul = isLulus(r);
+      const ltlClass = r.ltl === 'TIDAK LULUS' ? 'tidak-lulus' : r.ltl === 'LULUS' ? 'lulus' : '';
+      const ketClass = r.ket.includes('TIDAK') ? 'tidak-lulus' : r.ket.includes('LULUS') ? 'lulus' : '';
+      return `<tr>
+        <td style="text-align:center;color:var(--text-light);font-size:11px;">${start + i + 1}</td>
+        <td class="id-pps">${r.idpps || '-'}</td>
+        <td class="nama-col">${r.nama || '-'}</td>
+        <td style="text-align:center;font-weight:600;font-size:12px;">${r.dom || '-'}</td>
+        <td style="font-weight:600;color:var(--green-600);">${r.kelas || '-'}</td>
+        <td style="font-size:12px;">${r.pembimbing || '-'}</td>
+        <td style="font-size:12px;">${r.tempat || '-'}</td>
+        <td><span class="ket-badge ${ketClass}">${r.ket || '-'}</span></td>
+        <td><span class="ket-badge ${ltlClass}">${r.ltl || '-'}</span></td>
+        <td style="font-size:11px;color:var(--text-muted);">${r.tgl || '-'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Pagination
+  const btns = document.getElementById('paginationBtns');
+  btns.innerHTML = '';
+
+  const prevBtn = document.createElement('button');
+  prevBtn.className = 'pg-btn';
+  prevBtn.textContent = '← Prev';
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => { currentPage--; renderTable(); };
+  btns.appendChild(prevBtn);
+
+  let startPage = Math.max(1, currentPage - 3);
+  let endPage   = Math.min(totalPages, startPage + 6);
+  startPage     = Math.max(1, endPage - 6);
+
+  for (let p = startPage; p <= endPage; p++) {
+    const pb = document.createElement('button');
+    pb.className = 'pg-btn' + (p === currentPage ? ' active' : '');
+    pb.textContent = p;
+    pb.onclick = ((pg) => () => { currentPage = pg; renderTable(); })(p);
+    btns.appendChild(pb);
+  }
+
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'pg-btn';
+  nextBtn.textContent = 'Next →';
+  nextBtn.disabled = currentPage >= totalPages;
+  nextBtn.onclick = () => { currentPage++; renderTable(); };
+  btns.appendChild(nextBtn);
+}
+
+function clearData() {
+  arsipAllData = [];
+  arsipFiltered = [];
+  document.getElementById('fileInput').value = '';
+  document.getElementById('uploadZone').style.display = '';
+  document.getElementById('fileInfoBar').style.display = 'none';
+  document.getElementById('arsipStatsBar').style.display = 'none';
+  document.getElementById('arsipToolbar').style.display = 'none';
+  document.getElementById('arsipTableWrap').style.display = 'none';
+  document.getElementById('noBanner').style.display = '';
+  document.getElementById('sidebarFileName').textContent = 'Belum ada file';
+  document.getElementById('topbarDataInfo').textContent = 'Belum ada data';
+  document.getElementById('arsipSearch').value = '';
+  document.getElementById('filterKelas').value = '';
+  document.getElementById('filterLTL').value = '';
+}
+
+function exportFiltered() {
+  if (!arsipFiltered.length) return;
+  const wb = XLSX.utils.book_new();
+  const headers = ['No','ID PPS','Nama','DOM','Kelas','Pembimbing','Tempat','Ket. Tes','L/TL','Tgl'];
+  const wsData  = [headers, ...arsipFiltered.map((r, i) => [
+    i + 1, r.idpps, r.nama, r.dom, r.kelas, r.pembimbing, r.tempat, r.ket, r.ltl, r.tgl
+  ])];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = [4,10,28,6,10,24,14,16,12,10].map(w => ({ wch: w }));
+  XLSX.utils.book_append_sheet(wb, ws, 'Arsip Tes Tulis');
+  XLSX.writeFile(wb, 'arsip_tes_tulis_filtered.xlsx');
+}
+
+// =============================================
+// MURID SEARCH & DETAIL
+// =============================================
+function searchMurid(q) {
+  const resultsList = document.getElementById('muridResultsList');
+  const emptyState  = document.getElementById('muridEmptyState');
+  const detailSec   = document.getElementById('muridDetailSection');
+  const countEl     = document.getElementById('muridSearchCount');
+
+  if (!q || q.length < 2) {
+    resultsList.style.display = 'none';
+    emptyState.style.display = 'block';
+    detailSec.style.display = 'none';
+    countEl.textContent = '';
+    return;
+  }
+
+  // Group by murid (by nama + idpps)
+  const muridMap = {};
+  arsipAllData.forEach(r => {
+    const key = r.idpps || r.nama;
+    if (!muridMap[key]) muridMap[key] = { idpps: r.idpps, nama: r.nama, riwayat: [] };
+    muridMap[key].riwayat.push(r);
+  });
+
+  const ql = q.toLowerCase();
+  const results = Object.values(muridMap).filter(m =>
+    m.nama.toLowerCase().includes(ql) || m.idpps.toLowerCase().includes(ql)
+  ).slice(0, 30);
+
+  countEl.textContent = results.length + ' murid ditemukan';
+
+  if (results.length === 0) {
+    resultsList.style.display = 'block';
+    resultsList.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);">Tidak ada murid yang cocok</div>';
+    emptyState.style.display = 'none';
+    return;
+  }
+
+  detailSec.style.display = 'none';
+  emptyState.style.display = 'none';
+  resultsList.style.display = 'block';
+  resultsList.innerHTML = results.map(m => {
+    const l  = m.riwayat.filter(r => isLulus(r)).length;
+    const tl = m.riwayat.length - l;
+    return `<div class="murid-result-item" onclick="showMuridDetail('${(m.idpps || m.nama).replace(/'/g,"\\'")}')">
+      <div>
+        <div class="murid-result-name">${m.nama || '-'}</div>
+        <div class="murid-result-meta">ID: ${m.idpps || '-'} · ${m.riwayat.length}× tes · ${l}L / ${tl}TL</div>
+      </div>
+      <span class="murid-result-badge">${m.riwayat.length}× tes</span>
+    </div>`;
+  }).join('');
+}
+
+function showMuridDetail(key) {
+  const muridMap = {};
+  arsipAllData.forEach(r => {
+    const k = r.idpps || r.nama;
+    if (!muridMap[k]) muridMap[k] = { idpps: r.idpps, nama: r.nama, riwayat: [] };
+    muridMap[k].riwayat.push(r);
+  });
+
+  const m = muridMap[key];
+  if (!m) return;
+
+  document.getElementById('muridResultsList').style.display = 'none';
+  document.getElementById('muridEmptyState').style.display = 'none';
+  document.getElementById('muridDetailSection').style.display = 'block';
+
+  const l  = m.riwayat.filter(r => isLulus(r)).length;
+  const tl = m.riwayat.length - l;
+  const kelasList = [...new Set(m.riwayat.map(r => r.kelas).filter(Boolean))];
+
+  // Avatar initials
+  const initials = m.nama ? m.nama.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() : 'م';
+  document.getElementById('muridAvatarBig').textContent = initials;
+  document.getElementById('muridDetailName').textContent = m.nama || '—';
+  document.getElementById('muridDetailMeta').textContent = `ID PPS: ${m.idpps || '—'} · DOM: ${m.riwayat[0]?.dom || '—'}`;
+  document.getElementById('muridTotalTes').textContent = m.riwayat.length;
+  document.getElementById('muridTotalL').textContent  = l;
+  document.getElementById('muridTotalTL').textContent = tl;
+  document.getElementById('muridKelasCount').textContent = kelasList.length;
+
+  // Kelas tags
+  const tagsEl = document.getElementById('muridKelasTags');
+  tagsEl.innerHTML = kelasList.map(k => `<span class="kelas-tag">${k}</span>`).join('');
+
+  // Riwayat table
+  document.getElementById('muridRiwayatCount').textContent = m.riwayat.length + ' Entri';
+  const tbody = document.getElementById('muridRiwayatTbody');
+  tbody.innerHTML = m.riwayat.map((r, i) => {
+    const ltlClass = r.ltl === 'TIDAK LULUS' ? 'tidak-lulus' : r.ltl === 'LULUS' ? 'lulus' : '';
+    const ketClass = r.ket.includes('TIDAK') ? 'tidak-lulus' : r.ket.includes('LULUS') ? 'lulus' : '';
+    return `<tr>
+      <td style="color:var(--text-light);font-size:11px;">${i+1}</td>
+      <td><span class="kelas-tag">${r.kelas || '-'}</span></td>
+      <td style="font-weight:500;">${r.pembimbing || '-'}</td>
+      <td style="font-size:12px;">${r.tempat || '-'}</td>
+      <td><span class="ket-badge ${ketClass}">${r.ket || '-'}</span></td>
+      <td><span class="ket-badge ${ltlClass}">${r.ltl || '-'}</span></td>
+      <td style="font-size:11px;color:var(--text-muted);">${r.tgl || '-'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function closeMuridDetail() {
+  document.getElementById('muridDetailSection').style.display = 'none';
+  document.getElementById('muridEmptyState').style.display = 'block';
+  document.getElementById('muridSearchInput').value = '';
+  document.getElementById('muridSearchCount').textContent = '';
+}
+
+// =============================================
+// REKAP GURU PAGE
+// =============================================
+let guruPageAllData = [];
+
+function renderGuruPage() {
+  const guruMap = buildGuruMap(arsipAllData);
+  const guruArr = Object.values(guruMap).sort((a, b) => b.pct - a.pct);
+  guruPageAllData = guruArr;
+
+  document.getElementById('guruPageCount').textContent = guruArr.length + ' Guru';
+
+  // Chart
+  const ctx = document.getElementById('guruPageChart').getContext('2d');
+  if (guruPageChart) guruPageChart.destroy();
+  const labels = guruArr.map(g => g.nama.length > 22 ? g.nama.substring(0, 20) + '…' : g.nama);
+  const values = guruArr.map(g => g.pct);
+  const colors = values.map(v => v >= 80 ? '#639922' : v >= 60 ? '#1D9E75' : '#BA7517');
+
+  guruPageChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: '% Lulus',
+        data: values,
+        backgroundColor: colors,
+        borderRadius: 5,
+        barThickness: 18
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (c) => ` ${c.raw}% lulus (${guruArr[c.dataIndex].lulus} dari ${guruArr[c.dataIndex].total} tes)`
+          }
+        }
+      },
+      scales: {
+        x: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 }, color: '#8A9B78', callback: v => v + '%' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#5A6B48' } }
+      }
+    }
+  });
+
+  renderGuruPageTable(guruArr);
+}
+
+function renderGuruPageTable(guruArr) {
+  const tbody = document.getElementById('guruPageTbody');
+  if (!guruArr.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted);">Tidak ada data</td></tr>';
+    return;
+  }
+  tbody.innerHTML = guruArr.map((g, i) => {
+    const cls = g.pct >= 80 ? 'tinggi' : g.pct >= 60 ? 'sedang' : 'rendah';
+    const label = g.pct >= 80 ? '✅ Baik' : g.pct >= 60 ? '⚠️ Cukup' : '❌ Perlu Perhatian';
+    const kelasList = [...g.kelas].sort().join(', ');
+    return `<tr>
+      <td style="color:var(--text-light);font-size:11px;text-align:center;">${i+1}</td>
+      <td style="font-weight:600;">${g.nama}</td>
+      <td style="font-size:11px;color:var(--text-muted);max-width:200px;white-space:normal;">${kelasList || '-'}</td>
+      <td style="text-align:center;font-weight:600;">${g.total}</td>
+      <td style="text-align:center;font-weight:700;color:var(--green-600);">${g.lulus}</td>
+      <td style="text-align:center;font-weight:700;color:#A32D2D;">${g.tidakLulus}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-bar-wrap" style="width:80px;"><div class="progress-bar" style="width:${g.pct}%;background:${g.pct>=80?'var(--green-400)':g.pct>=60?'var(--teal-400)':'#BA7517'}"></div></div>
+          <span style="font-weight:700;font-size:13px;">${g.pct}%</span>
+        </div>
+      </td>
+      <td><span class="badge-lulus ${cls}">${label}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterGuruPageTable(q) {
+  const filtered = q
+    ? guruPageAllData.filter(g => g.nama.toLowerCase().includes(q.toLowerCase()))
+    : guruPageAllData;
+  document.getElementById('guruPageCount').textContent = filtered.length + ' Guru';
+  renderGuruPageTable(filtered);
+
+  // Filter table rows too
+  const rows = document.querySelectorAll('#guruPageTbody tr');
+  rows.forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+</script>
+</body>
+</html>
